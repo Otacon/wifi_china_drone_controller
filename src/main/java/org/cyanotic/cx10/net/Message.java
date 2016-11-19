@@ -1,3 +1,5 @@
+package org.cyanotic.cx10.net;
+
 /**
  * Created by orfeo.ciano on 18/11/2016.
  */
@@ -53,7 +55,19 @@ abstract class Message {
                 + bytesToHex(line3) + "\n"
                 + bytesToHex(line4) + "\n"
                 + bytesToHex(line5) + "\n";
+    }
 
+    protected static byte[] asUnsigned(int... values){
+        byte[] bytes = new byte[values.length];
+        for(int i = 0; i < values.length; i++){
+            int value = values[i];
+            if(value > Byte.MAX_VALUE){
+                bytes[i] = (byte) value;
+            } else {
+                bytes[i] = (byte) (value & 0xff);
+            }
+        }
+        return bytes;
     }
 
 }
