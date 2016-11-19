@@ -1,4 +1,4 @@
-package org.cyanotic.cx10.net;
+package org.cyanotic.cx10.model;
 
 /**
  * Created by cyanotic on 19/11/2016.
@@ -17,7 +17,6 @@ public class Command {
     public Command(int pitch, int yaw, int roll, int throttle) {
         this.pitch = pitch;
         this.yaw = yaw;
-        this.roll = roll;
         this.throttle = throttle;
     }
 
@@ -26,10 +25,10 @@ public class Command {
     }
 
     public void setPitch(int pitch) {
-        if (pitch < 0) {
-            pitch = 0;
-        } else if (pitch > 254) {
-            pitch = 254;
+        if (pitch < -128) {
+            pitch = -128;
+        } else if (pitch > 128) {
+            pitch = 128;
         }
         this.pitch = pitch;
     }
@@ -39,10 +38,10 @@ public class Command {
     }
 
     public void setYaw(int yaw) {
-        if (yaw < 0) {
-            yaw = 0;
-        } else if (yaw > 254) {
-            yaw = 254;
+        if (yaw < -128) {
+            yaw = -128;
+        } else if (yaw > 128) {
+            yaw = 128;
         }
         this.yaw = yaw;
     }
@@ -52,10 +51,10 @@ public class Command {
     }
 
     public void setRoll(int roll) {
-        if (roll < 0) {
-            roll = 0;
-        } else if (roll > 254) {
-            roll = 254;
+        if (roll < -128) {
+            roll = 128;
+        } else if (roll > 128) {
+            roll = 128;
         }
         this.roll = roll;
     }
@@ -104,5 +103,13 @@ public class Command {
         result = 31 * result + roll;
         result = 31 * result + throttle;
         return result;
+    }
+
+    public static Command TakeOff() {
+        return new Command();
+    }
+
+    public static Command Land() {
+        return new Command();
     }
 }
