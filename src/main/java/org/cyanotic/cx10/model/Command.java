@@ -9,15 +9,18 @@ public class Command {
     private int yaw;
     private int roll;
     private int throttle;
+    private boolean takeOff;
+    private boolean land;
 
     public Command() {
-        this(0, 0, 0, 0);
+        this(127, -1, 0, 0);
     }
 
     public Command(int pitch, int yaw, int roll, int throttle) {
         this.pitch = pitch;
         this.yaw = yaw;
         this.throttle = throttle;
+        this.roll = roll;
     }
 
     public int getPitch() {
@@ -72,13 +75,31 @@ public class Command {
         this.throttle = throttle;
     }
 
+    public boolean isTakeOff() {
+        return takeOff;
+    }
+
+    public void setTakeOff(boolean takeOff) {
+        this.takeOff = takeOff;
+    }
+
+    public boolean isLand() {
+        return land;
+    }
+
+    public void setLand(boolean land) {
+        this.land = land;
+    }
+
     @Override
     public String toString() {
         return "Command{" +
-                "\npitch=" + pitch +
-                "\nyaw=" + yaw +
-                "\nroll=" + roll +
-                "\nthrottle=" + throttle +
+                "pitch=" + pitch +
+                ", yaw=" + yaw +
+                ", roll=" + roll +
+                ", throttle=" + throttle +
+                ", takeOff=" + takeOff +
+                ", land=" + land +
                 '}';
     }
 
@@ -92,7 +113,9 @@ public class Command {
         if (pitch != command.pitch) return false;
         if (yaw != command.yaw) return false;
         if (roll != command.roll) return false;
-        return throttle == command.throttle;
+        if (throttle != command.throttle) return false;
+        if (takeOff != command.takeOff) return false;
+        return land == command.land;
 
     }
 
@@ -102,14 +125,8 @@ public class Command {
         result = 31 * result + yaw;
         result = 31 * result + roll;
         result = 31 * result + throttle;
+        result = 31 * result + (takeOff ? 1 : 0);
+        result = 31 * result + (land ? 1 : 0);
         return result;
-    }
-
-    public static Command TakeOff() {
-        return new Command();
-    }
-
-    public static Command Land() {
-        return new Command();
     }
 }

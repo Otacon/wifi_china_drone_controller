@@ -1,11 +1,11 @@
 package org.cyanotic.cx10.net;
 
+import static org.cyanotic.cx10.utils.ByteUtils.bytesToHex;
+
 /**
  * Created by orfeo.ciano on 18/11/2016.
  */
 abstract class Message {
-
-    private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
     byte[] token = new byte[16];
     byte[] line1 = new byte[16];
     byte[] line2 = new byte[16];
@@ -18,17 +18,6 @@ abstract class Message {
         header = new byte[]{
                 0x49, 0x54, 0x64, 0x00, 0x00, 0x00, getTypeFlag(), 0x00, 0x00, 0x00
         };
-    }
-
-    private static String bytesToHex(byte[] bytes) {
-        String output = "";
-        for (byte aByte : bytes) {
-            int v = aByte & 0xFF;
-            output += hexArray[v >>> 4];
-            output += hexArray[v & 0x0F];
-            output += " ";
-        }
-        return output;
     }
 
     abstract byte getTypeFlag();
@@ -56,18 +45,4 @@ abstract class Message {
                 + bytesToHex(line4) + "\n"
                 + bytesToHex(line5) + "\n";
     }
-
-    protected static byte[] asUnsigned(int... values){
-        byte[] bytes = new byte[values.length];
-        for(int i = 0; i < values.length; i++){
-            int value = values[i];
-            if(value > Byte.MAX_VALUE){
-                bytes[i] = (byte) value;
-            } else {
-                bytes[i] = (byte) (value & 0xff);
-            }
-        }
-        return bytes;
-    }
-
 }

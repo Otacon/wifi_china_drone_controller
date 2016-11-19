@@ -1,5 +1,7 @@
 package org.cyanotic.cx10.net;
 
+import static org.cyanotic.cx10.utils.ByteUtils.asUnsigned;
+
 /**
  * Created by orfeo.ciano on 18/11/2016.
  */

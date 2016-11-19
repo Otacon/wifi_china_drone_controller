@@ -85,15 +85,10 @@ public class XInput implements IController {
         int rx = (int) (axes.rx * 128);
         int ry = (int) (axes.ry * 128);
 
-        Command command;
+        Command command = new Command();
 
-        if (rt > 64) {
-            command = Command.TakeOff();
-        } else if (lt > 64) {
-            command = Command.Land();
-        } else {
-            command = new Command();
-        }
+        command.setTakeOff(rt > 64);
+        command.setLand(lt > 64);
         command.setThrottle(ly);
         command.setYaw(lx);
         command.setPitch(ry);
