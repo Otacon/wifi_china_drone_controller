@@ -55,12 +55,6 @@ public class Controller extends Thread implements IController.CommandListener {
         transportConnection.connect();
         transportConnection.setName("org.cyanotic.cx10.net.Connection 1");
         transportConnection.sendMessage(new HelloMessage1());
-
-        transportConnection2.connect();
-        transportConnection2.setName("org.cyanotic.cx10.net.Connection 2");
-        transportConnection2.sendMessage(new HelloMessage2());
-        transportConnection2.disconnect();
-
         transportConnection.sendMessage(new HelloMessage3());
         transportConnection.sendMessage(new HelloMessage4());
         transportConnection.sendMessage(new HelloMessage5());
