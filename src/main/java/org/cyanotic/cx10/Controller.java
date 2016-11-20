@@ -16,7 +16,6 @@ public class Controller extends Thread implements IController.CommandListener {
     private final Connection transportConnection;
     private final Connection transportConnection2;
     private Command lastCommand;
-    private boolean tookOff = false;
 
     public Controller(IController controller, CommandConnection dataConnection, Connection transportConnection, Connection transportConnection2) {
         this.controller = controller;
@@ -66,32 +65,6 @@ public class Controller extends Thread implements IController.CommandListener {
         transportConnection.sendMessage(new HelloMessage4());
         transportConnection.sendMessage(new HelloMessage5());
         transportConnection.sendMessage(new HelloMessage6());
-    }
-
-    private void takeOff() {
-        System.out.println("Take off procedure started");
-        Command command = new Command();
-        command.setTakeOff(true);
-        command.setThrottle(0);
-        for (int i = 0; i < 20; i++) {
-            dataConnection.sendCommand(command);
-            hold();
-        }
-        System.out.println("Take off procedure finished");
-        tookOff = true;
-    }
-
-    private void land() {
-        System.out.println("Landing procedure started");
-        Command command = new Command();
-        command.setLand(true);
-        command.setPitch(126);
-        for (int i = 0; i < 20; i++) {
-            dataConnection.sendCommand(command);
-            hold();
-        }
-        System.out.println("Landing procedure finished");
-        tookOff = false;
     }
 
     private void hold() {
