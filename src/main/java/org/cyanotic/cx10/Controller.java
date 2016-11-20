@@ -2,7 +2,9 @@ package org.cyanotic.cx10;
 
 import org.cyanotic.cx10.io.IController;
 import org.cyanotic.cx10.model.Command;
-import org.cyanotic.cx10.net.CommandConnection;
+import org.cyanotic.cx10.net.*;
+
+import java.io.IOException;
 
 /**
  * Created by cyanotic on 19/11/2016.
@@ -10,52 +12,69 @@ import org.cyanotic.cx10.net.CommandConnection;
 public class Controller extends Thread implements IController.CommandListener {
 
     private final IController controller;
-    private final CommandConnection connection;
+    private final CommandConnection dataConnection;
+    private final Connection transportConnection;
+    private final Connection transportConnection2;
     private Command lastCommand;
     private boolean tookOff = false;
 
-    public Controller(IController controller, CommandConnection connection){
+    public Controller(IController controller, CommandConnection dataConnection, Connection transportConnection, Connection transportConnection2) {
         this.controller = controller;
-        this.connection = connection;
+        this.dataConnection = dataConnection;
+        this.transportConnection = transportConnection;
+        this.transportConnection2 = transportConnection2;
         lastCommand = new Command();
     }
 
     @Override
-    public void start(){
-        super.start();
-    }
-
-    @Override
-    public void interrupt(){
+    public void interrupt() {
         controller.setListener(null);
         controller.stop();
+        super.interrupt();
     }
 
     @Override
-    public void run(){
+    public void run() {
+        try {
+            handshake();
+        } catch (IOException e) {
+            System.err.println("Unable to start the handshake");
+            e.printStackTrace();
+            return;
+        }
+
         controller.setListener(this);
         controller.start();
-        while(!isInterrupted()) {
-            if(lastCommand.isTakeOff() && !tookOff){
-                takeOff();
-                continue;
-            }
-            if(!tookOff){
-                connection.sendCommand(new Command());
-            } else {
-                connection.sendCommand(lastCommand);
-            }
+
+        while (!isInterrupted()) {
+            dataConnection.sendCommand(lastCommand);
             hold();
         }
+    }
+
+    private void handshake() throws IOException {
+        transportConnection.connect();
+        transportConnection.setName("org.cyanotic.cx10.net.Connection 1");
+        transportConnection.sendMessage(new HelloMessage1());
+
+        transportConnection2.connect();
+        transportConnection2.setName("org.cyanotic.cx10.net.Connection 2");
+        transportConnection2.sendMessage(new HelloMessage2());
+        transportConnection2.disconnect();
+
+        transportConnection.sendMessage(new HelloMessage3());
+        transportConnection.sendMessage(new HelloMessage4());
+        transportConnection.sendMessage(new HelloMessage5());
+        transportConnection.sendMessage(new HelloMessage6());
     }
 
     private void takeOff() {
         System.out.println("Take off procedure started");
         Command command = new Command();
         command.setTakeOff(true);
-        command.setPitch(126);
-        for(int i = 0; i < 20; i++){
-            connection.sendCommand(command);
+        command.setThrottle(0);
+        for (int i = 0; i < 20; i++) {
+            dataConnection.sendCommand(command);
             hold();
         }
         System.out.println("Take off procedure finished");
@@ -67,15 +86,15 @@ public class Controller extends Thread implements IController.CommandListener {
         Command command = new Command();
         command.setLand(true);
         command.setPitch(126);
-        for(int i = 0; i < 20; i++){
-            connection.sendCommand(command);
+        for (int i = 0; i < 20; i++) {
+            dataConnection.sendCommand(command);
             hold();
         }
         System.out.println("Landing procedure finished");
         tookOff = false;
     }
 
-    private void hold(){
+    private void hold() {
         try {
             sleep(50);
         } catch (InterruptedException e) {
@@ -84,7 +103,7 @@ public class Controller extends Thread implements IController.CommandListener {
     }
 
     public void onCommandReceived(Command command) {
-        if(command == null) {
+        if (command == null) {
             lastCommand = new Command();
         } else {
             lastCommand = command;

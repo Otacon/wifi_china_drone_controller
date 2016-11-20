@@ -13,7 +13,7 @@ public class Command {
     private boolean land;
 
     public Command() {
-        this(127, -1, 0, 0);
+        this(0, 0, 0, 0);
     }
 
     public Command(int pitch, int yaw, int roll, int throttle) {
@@ -30,8 +30,8 @@ public class Command {
     public void setPitch(int pitch) {
         if (pitch < -128) {
             pitch = -128;
-        } else if (pitch > 128) {
-            pitch = 128;
+        } else if (pitch > 127) {
+            pitch = 127;
         }
         this.pitch = pitch;
     }
@@ -43,8 +43,8 @@ public class Command {
     public void setYaw(int yaw) {
         if (yaw < -128) {
             yaw = -128;
-        } else if (yaw > 128) {
-            yaw = 128;
+        } else if (yaw > 127) {
+            yaw = 127;
         }
         this.yaw = yaw;
     }
@@ -56,8 +56,8 @@ public class Command {
     public void setRoll(int roll) {
         if (roll < -128) {
             roll = 128;
-        } else if (roll > 128) {
-            roll = 128;
+        } else if (roll > 127) {
+            roll = 127;
         }
         this.roll = roll;
     }
@@ -67,10 +67,10 @@ public class Command {
     }
 
     public void setThrottle(int throttle) {
-        if (throttle < 0) {
-            throttle = 0;
-        } else if (throttle > 254) {
-            throttle = 254;
+        if (throttle < -128) {
+            throttle = -128;
+        } else if (throttle > 127) {
+            throttle = 127;
         }
         this.throttle = throttle;
     }

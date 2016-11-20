@@ -1,6 +1,7 @@
 package org.cyanotic.cx10.net;
 
 import org.cyanotic.cx10.model.Command;
+import org.cyanotic.cx10.utils.ByteUtils;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -24,6 +25,14 @@ public class CommandConnection {
         socket = new DatagramSocket();
     }
 
+    public static final byte checksum(byte[] bytes) {
+        byte sum = 0;
+        for (byte b : bytes) {
+            sum ^= b;
+        }
+        return sum;
+    }
+
     public void sendCommand(Command command) {
         byte[] data = asByteArray(command);
         System.out.println(bytesToHex(data));
@@ -38,7 +47,7 @@ public class CommandConnection {
 
     private byte[] asByteArray(Command command) {
         int pitch = command.getPitch() + 128;
-        int yaw = command.getYaw() + 128;
+        int yaw = command.getYaw() + 127;
         int roll = command.getRoll() + 128;
         int throttle = command.getThrottle() + 128;
         boolean takeOff = command.isTakeOff();
@@ -46,24 +55,22 @@ public class CommandConnection {
 
         byte[] data = new byte[8];
         data[0] = (byte) 0xCC;
-        data[1] = (byte) 0x80;
-        data[2] = (byte) 0x80;
-        data[3] = (byte) 0x80;
-        data[4] = (byte) throttle;
+        data[1] = (byte) roll;
+        data[2] = (byte) pitch;
+        data[3] = (byte) throttle;
+        data[4] = (byte) yaw;
         if (takeOff) {
             data[5] = (byte) 0x01;
-            data[6] = (byte) 0xFE;
         } else if (land) {
             data[5] = (byte) 0x02;
-            data[6] = (byte) 0xFD;
         } else {
             data[5] = (byte) 0x00;
-            data[6] = (byte) 0xFF;
         }
+
+        data[6] = checksum(ByteUtils.asUnsigned(data[1], data[2], data[3], data[4], data[5]));
 
         data[7] = (byte) 0x33;
         return data;
     }
-
 
 }
