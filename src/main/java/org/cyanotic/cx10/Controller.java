@@ -14,14 +14,12 @@ public class Controller extends Thread implements IController.CommandListener {
     private final IController controller;
     private final CommandConnection dataConnection;
     private final Connection transportConnection;
-    private final Connection transportConnection2;
     private Command lastCommand;
 
-    public Controller(IController controller, CommandConnection dataConnection, Connection transportConnection, Connection transportConnection2) {
+    public Controller(IController controller, CommandConnection dataConnection, Connection transportConnection) {
         this.controller = controller;
         this.dataConnection = dataConnection;
         this.transportConnection = transportConnection;
-        this.transportConnection2 = transportConnection2;
         lastCommand = new Command();
     }
 

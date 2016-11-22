@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="org.mp4parser:isoparser:1.9.27" type="repository">
+    <properties maven-id="org.mp4parser:isoparser:1.9.27" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/isoparser-1.9.27.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/android-1.6_r2.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/junit-4.10.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

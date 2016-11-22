@@ -1,0 +1,11 @@
+<component name="libraryTable">
+  <library name="com.googlecode.mp4parser:isoparser:1.1.21" type="repository">
+    <properties maven-id="com.googlecode.mp4parser:isoparser:1.1.21" />
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/lib/isoparser-1.1.21.jar!/" />
+      <root url="jar://$PROJECT_DIR$/lib/android-1.6_r2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
