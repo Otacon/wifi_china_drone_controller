@@ -12,6 +12,7 @@ public class VideoStreamControl {
 
     private int position = 0;
     private byte[] window;
+    private int toSkip = 0;
 
     public VideoStreamControl() {
     }
@@ -28,6 +29,12 @@ public class VideoStreamControl {
         }
 
         for (; position < bytes.length; position++) {
+            if (toSkip > 0) {
+                pushInWindow(bytes[position]);
+                toSkip--;
+                continue;
+            }
+
             if (isHeader()) {
                 System.out.println("Found a new NAL");
                 byte[] src = fixNAL(bytes);
@@ -38,9 +45,10 @@ public class VideoStreamControl {
             }
         }
 
-        byte[] ret = new byte[out.position()];
+        byte[] ret = new byte[out.position() + 1];
         out.rewind();
         out.get(ret);
+        ret[ret.length - 1] = window[2];
         System.out.println("Return is " + ByteUtils.bytesToHex(ret));
         return ret;
     }
@@ -58,17 +66,7 @@ public class VideoStreamControl {
         header[4] = nal[3];
         System.out.println("The new NAL is " + ByteUtils.bytesToHex(header));
 
-        System.out.print("Updated the position from " + position);
-        position = position + 37;
-        System.out.println(" to " + position);
-
-        System.out.println("The old window is " + ByteUtils.bytesToHex(window));
-        window[0] = bytes[position + 1];
-        window[1] = bytes[position];
-        window[2] = bytes[position - 1];
-        System.out.println("The new window is " + ByteUtils.bytesToHex(window));
-
-
+        toSkip = 37;
         return header;
     }
 
