@@ -37,7 +37,7 @@ public class Launcher {
         DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
         outputStream.write(bytes);
         DataInputStream inputStream = new DataInputStream(socket.getInputStream());
-//        FileInputStream inputStream = new FileInputStream("video_protocol");
+        //FileInputStream inputStream = new FileInputStream("video_protocol");
         byte[] response = new byte[106];
         inputStream.read(response);
 
@@ -46,7 +46,7 @@ public class Launcher {
         BufferedOutputStream ffplayOutput = new BufferedOutputStream(ffplaySocket.getOutputStream());
         //BufferedOutputStream ffplayOutput = new BufferedOutputStream(new FileOutputStream("media_1t_t.h264"));
         CX10InputStreamReader control = new CX10InputStreamReader();
-        byte[] buf = new byte[4096];
+        byte[] buf = new byte[64];
         while (inputStream.read(buf) > 0) {
             byte[] cleanOutput = control.feed(buf);
             ffplayOutput.write(cleanOutput);

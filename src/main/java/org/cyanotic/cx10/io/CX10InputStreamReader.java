@@ -55,10 +55,10 @@ public class CX10InputStreamReader {
                 stateSkip(b);
                 break;
             case STATE_CAPTURE_NAL_A0:
-                stateCaptureNalA0(b);
+                captureNalA2(b);
                 break;
             case STATE_CAPTURE_NAL_A1:
-                stateCaptureNalA1(b);
+                captureNalA1(b);
                 break;
             default:
                 stateInit(b);
@@ -131,7 +131,7 @@ public class CX10InputStreamReader {
 
     }
 
-    private void stateCaptureNalA0(byte b) {
+    private void captureNalA2(byte b) {
         nalBuffer.put(b);
         toCapture--;
         if (toCapture == 0) {
@@ -141,10 +141,11 @@ public class CX10InputStreamReader {
         }
     }
 
-    private void stateCaptureNalA1(byte b) {
+    private void captureNalA1(byte b) {
         nalBuffer.put(b);
         toCapture--;
         if (toCapture == 0) {
+            //System.out.println(ByteUtils.bytesToHex(nalBuffer.array()));
             state = STATE_INIT;
         }
     }
@@ -157,14 +158,28 @@ public class CX10InputStreamReader {
     }
 
     byte[] replaceNal(byte[] nalA0) {
-        byte[] out = new byte[32];
-        byte[] params = ByteUtils.asUnsigned(0x01, 0x00, 0x00, 0x19, 0xD0, 0x02, 0x40, 0x02);
-        System.arraycopy(params, 0, out, 0, params.length);
-        System.arraycopy(nalA0, 12, out, 8, 8);
-        out[16] = nalA0[5];
-        out[18] = nalA0[9];
-        out[19] = nalA0[8];
-        return out;
+        int type = nalA0[7];
+        if (type == (0x01 & 0x1f)) {
+            byte[] out = new byte[27];
+            System.arraycopy(nalA0, 13, out, 0, 27);
+            return out;
+        }
+        if (type == (0x02 & 0x1f)) {
+            System.out.println("A0 Nal Type is 2");
+            System.out.println(ByteUtils.bytesToHex(nalA0));
+        } else if (type == 0x03) {
+            byte[] out = new byte[32];
+            //System.out.println("A0 Nal Type is 3");
+            byte[] params = ByteUtils.asUnsigned(0x01, 0x00, 0x00, 0x19, 0xD0, 0x02, 0x40, 0x02);
+            //System.out.println(ByteUtils.bytesToHex(nalA0));
+            System.arraycopy(params, 0, out, 0, params.length);
+            System.arraycopy(nalA0, 12, out, 8, 8);
+            out[16] = nalA0[5];
+            out[18] = nalA0[9];
+            out[19] = nalA0[8];
+            return out;
+        }
+        return new byte[0];
     }
 
 
