@@ -15,18 +15,20 @@ public class CX10InputStreamReader {
     private static final int STATE_00_00 = 2;
     private static final int STATE_00_00_01 = 3;
     private static final int STATE_SKIP = 4;
+    private static final int STATE_CAPTURE_NAL_A0 = 5;
+    private static final int STATE_CAPTURE_NAL_A1 = 6;
 
-    private boolean firstNal = true;
+    private boolean firstNal = false;
     private int state = STATE_INIT;
     private int toSkip = 0;
-    private int byteCount = 0;
+    private int toCapture = 0;
+    private ByteBuffer nalBuffer;
 
     private ByteBuffer buffer;
 
     public byte[] feed(byte[] bytes) {
         buffer = ByteBuffer.allocate(bytes.length * 2);
         for (int i = 0; i < bytes.length; i++) {
-            byteCount++;
             nextByte(bytes[i]);
         }
         byte[] ret = new byte[buffer.position()];
@@ -51,6 +53,12 @@ public class CX10InputStreamReader {
                 break;
             case STATE_SKIP:
                 stateSkip(b);
+                break;
+            case STATE_CAPTURE_NAL_A0:
+                stateCaptureNalA0(b);
+                break;
+            case STATE_CAPTURE_NAL_A1:
+                stateCaptureNalA1(b);
                 break;
             default:
                 stateInit(b);
@@ -98,26 +106,47 @@ public class CX10InputStreamReader {
 
     private void state00_00_01(byte b) {
         int nal_unit_type = (b & 0x1F);
-        System.out.print("NAL " + nal_unit_type);
-        if (isValid(nal_unit_type)) {
-
-            if (firstNal && nal_unit_type == 7) {
-                System.out.println(" first nal!");
+        if (firstNal) {
+            if (nal_unit_type == 7) {
                 buffer.put(ByteUtils.asUnsigned(0x00, 0x00, 0x00, 0x01, b));
                 firstNal = false;
-            } else if (!firstNal) {
-                buffer.put(ByteUtils.asUnsigned(0x00, 0x00, 0x00, 0x01, b));
+                state = STATE_INIT;
             }
-            state = STATE_INIT;
         } else {
-            System.out.println(" skipped " + byteCount + " " + ByteUtils.bytesToHex(ByteUtils.asUnsigned(b)));
-            toSkip = 36;
-            state = STATE_SKIP;
+            if ((int) b == -96) {
+                nalBuffer = ByteBuffer.allocate(40);
+                nalBuffer.put(ByteUtils.asUnsigned(0x00, 0x00, 0x01, 0xA0));
+                toCapture = 36;
+                state = STATE_CAPTURE_NAL_A0;
+            } else if ((int) b == -95) {
+                nalBuffer = ByteBuffer.allocate(13);
+                nalBuffer.put(ByteUtils.asUnsigned(0x00, 0x00, 0x01, 0xA1));
+                toCapture = 8;
+                state = STATE_CAPTURE_NAL_A1;
+            } else {
+                buffer.put(ByteUtils.asUnsigned(0x00, 0x00, 0x00, 0x01, b));
+                state = STATE_INIT;
+            }
+        }
+
+    }
+
+    private void stateCaptureNalA0(byte b) {
+        nalBuffer.put(b);
+        toCapture--;
+        if (toCapture == 0) {
+            byte[] translatedNal = replaceNal(nalBuffer.array());
+            buffer.put(translatedNal);
+            state = STATE_INIT;
         }
     }
 
-    private boolean isValid(int nal_unit_type) {
-        return nal_unit_type > 0 && nal_unit_type < 16 || nal_unit_type > 18 && nal_unit_type < 22;
+    private void stateCaptureNalA1(byte b) {
+        nalBuffer.put(b);
+        toCapture--;
+        if (toCapture == 0) {
+            state = STATE_INIT;
+        }
     }
 
     private void stateSkip(byte b) {
@@ -126,4 +155,17 @@ public class CX10InputStreamReader {
             state = STATE_INIT;
         }
     }
+
+    byte[] replaceNal(byte[] nalA0) {
+        byte[] out = new byte[32];
+        byte[] params = ByteUtils.asUnsigned(0x01, 0x00, 0x00, 0x19, 0xD0, 0x02, 0x40, 0x02);
+        System.arraycopy(params, 0, out, 0, params.length);
+        System.arraycopy(nalA0, 12, out, 8, 8);
+        out[16] = nalA0[5];
+        out[18] = nalA0[9];
+        out[19] = nalA0[8];
+        return out;
+    }
+
+
 }

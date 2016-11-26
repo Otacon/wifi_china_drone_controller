@@ -17,7 +17,7 @@ public class FFPlayProcessVideoPlayer implements IVideoPlayer {
         try {
             String threads = "" + Runtime.getRuntime().availableProcessors() / 2;
             String output = "tcp://" + HOSTNAME + ":" + PORT + "?listen";
-            ffplay = new ProcessBuilder("ffplay.exe", "-threads", "" + threads, "-i", output)
+            ffplay = new ProcessBuilder("ffplay.exe", "-fast", "-threads", "" + threads, "-i", output)
                     .inheritIO()
                     .start();
             System.out.println("ffplay.exe" + " -threads " + threads + " -i " + output);
