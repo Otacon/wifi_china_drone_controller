@@ -8,8 +8,6 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 
-import static org.cyanotic.cx10.utils.ByteUtils.bytesToHex;
-
 /**
  * Created by cyanotic on 19/11/2016.
  */
@@ -35,7 +33,7 @@ public class CommandConnection {
 
     public void sendCommand(Command command) {
         byte[] data = asByteArray(command);
-        System.out.println(bytesToHex(data));
+        //System.out.println(bytesToHex(data));
         DatagramPacket packet = new DatagramPacket(data, 0, data.length, host, port);
         try {
             socket.send(packet);

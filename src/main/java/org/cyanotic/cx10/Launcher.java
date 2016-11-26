@@ -1,86 +1,54 @@
 package org.cyanotic.cx10;
 
 import com.ivan.xinput.exceptions.XInputNotLoadedException;
-import org.cyanotic.cx10.utils.ByteUtils;
-import org.jcodec.api.JCodecException;
+import org.cyanotic.cx10.io.CX10InputStreamReader;
+import org.cyanotic.cx10.io.XInput;
+import org.cyanotic.cx10.io.video.FFPlayProcessVideoPlayer;
+import org.cyanotic.cx10.io.video.IVideoPlayer;
+import org.cyanotic.cx10.net.CommandConnection;
+import org.cyanotic.cx10.net.Connection;
 
+import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Created by cyanotic on 19/11/2016.
  */
 public class Launcher {
 
-    public static void main(String[] args) throws IOException, InterruptedException, XInputNotLoadedException, JCodecException {
-//        DirectFileReadDataSource dataSource = new DirectFileReadDataSource(new File("output.mp4"));
-//        H264TrackImpl h264Track = new H264TrackImpl(dataSource);
-//        Movie movie = new Movie();
-//        movie.addTrack(h264Track);
-//        Container mp4file = new DefaultMp4Builder().build(movie);
-//        FileChannel fc = new FileOutputStream(new File("encoded.mp4")).getChannel();
-//        mp4file.writeContainer(fc);
-//        fc.close();
+    public static void main(String[] args) throws IOException, InterruptedException, XInputNotLoadedException {
+        IVideoPlayer player = new FFPlayProcessVideoPlayer();
+        player.start();
+        Thread.sleep(5000);
 
+        Connection c1 = new Connection("172.16.10.1", 8888);
+        Controller controller = new Controller(new XInput(), new CommandConnection("172.16.10.1", 8895), c1);
+        controller.start();
 
-//        Connection c1 = new Connection("172.16.10.1", 8888);
-//        Controller controller = new Controller(new XInput(), new CommandConnection("172.16.10.1", 8895), c1);
-//        controller.start();
-//
-//        InetAddress address = InetAddress.getByName("172.16.10.1");
-//        Socket socket = new Socket(address, 8888);
-//        byte[] bytes = Files.readAllBytes(Paths.get("video.bin"));
-//        DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
-//        outputStream.write(bytes);
-//        DataInputStream inputStream = new DataInputStream(socket.getInputStream());
-
-        DataInputStream inputStream = new DataInputStream(new FileInputStream("conversation.bin"));
+        InetAddress address = InetAddress.getByName("172.16.10.1");
+        Socket socket = new Socket(address, 8888);
+        byte[] bytes = Files.readAllBytes(Paths.get("video.bin"));
+        DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+        outputStream.write(bytes);
+        DataInputStream inputStream = new DataInputStream(socket.getInputStream());
         byte[] response = new byte[106];
         inputStream.read(response);
 
-        Thread.sleep(1000);
-        FileOutputStream file = new FileOutputStream("output.mp4");
-        try {
-            int bytesCount = 0;
-            while (true) {
-                int[] data = new int[3];
-                int bytesRead = 0;
-                data[0] = inputStream.readUnsignedByte();
-                if (data[0] == 0x00) {
-                    bytesRead++;
-                    data[1] = inputStream.readUnsignedByte();
-                    if (data[1] == 0x00) {
-                        bytesRead++;
-                        data[2] = inputStream.readUnsignedByte();
-                        if (data[2] == (0x01 & 0xff)) {
-                            bytesRead++;
-                        }
-                    }
-                }
-                boolean isHeader = bytesRead == 3;
-                if (isHeader) {
-                    byte[] header = new byte[41];
-                    header[0] = 0x00;
-                    header[1] = 0x00;
-                    header[2] = 0x00;
-                    header[3] = 0x01 & 0xFF;
-                    inputStream.read(header, 4, 37);
-                    inputStream.skipBytes(4);
-                    System.out.println(ByteUtils.bytesToHex(header));
-                    file.write(header, 0, 4);
-                } else {
-                    for (int i = 0; i <= bytesRead; i++) {
-                        file.write(data[i]);
-                    }
-                }
-
-                bytesCount++;
-            }
-        } catch (IOException e) {
-            file.flush();
-            file.close();
+        InetAddress ffplay = InetAddress.getByName("localhost");
+        Socket ffplaySocket = new Socket(ffplay, 8889);
+        BufferedOutputStream ffplayOutput = new BufferedOutputStream(ffplaySocket.getOutputStream());
+        CX10InputStreamReader control = new CX10InputStreamReader();
+        byte[] buf = new byte[4096];
+        while (inputStream.read(buf) > 0) {
+            byte[] cleanOutput = control.feed(buf);
+            ffplayOutput.write(cleanOutput);
+            ffplayOutput.flush();
         }
     }
 }
