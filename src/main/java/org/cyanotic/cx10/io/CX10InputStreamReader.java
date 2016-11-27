@@ -23,6 +23,7 @@ public class CX10InputStreamReader {
     private int state = STATE_INIT;
     private int toSkip = 0;
     private int toCapture = 0;
+    private long byteCount = 0;
     private ByteBuffer nalBuffer;
 
     private ByteBuffer buffer;
@@ -32,6 +33,7 @@ public class CX10InputStreamReader {
         for (int i = 0; i < bytes.length; i++) {
             A0Distance++;
             A1Distance++;
+            byteCount++;
             nextByte(bytes[i]);
         }
         byte[] ret = new byte[buffer.position()];
@@ -120,15 +122,15 @@ public class CX10InputStreamReader {
                 nalBuffer = ByteBuffer.allocate(40);
                 nalBuffer.put(ByteUtils.asUnsigned(0x00, 0x00, 0x01, 0xA0));
                 toCapture = 36;
-                System.out.println("Last A0 = " + A0Distance + "( " + Long.toHexString(A0Distance) + " )");
-                System.out.println("Last A1 = " + A1Distance + "( " + Long.toHexString(A1Distance) + " )");
+//                System.out.println("Last A0 = " + A0Distance + "( " + Long.toHexString(A0Distance) + " )");
+//                System.out.println("Last A1 = " + A1Distance + "( " + Long.toHexString(A1Distance) + " )");
                 state = STATE_CAPTURE_NAL_A0;
             } else if ((int) b == -95) {
-                nalBuffer = ByteBuffer.allocate(13);
+                nalBuffer = ByteBuffer.allocate(40);
                 nalBuffer.put(ByteUtils.asUnsigned(0x00, 0x00, 0x01, 0xA1));
-                toCapture = 8;
-                System.out.println("Last A0 = " + A0Distance + "( " + Long.toHexString(A0Distance) + " )");
-                System.out.println("Last A1 = " + A1Distance + "( " + Long.toHexString(A1Distance) + " )");
+                toCapture = 36;
+//                System.out.println("Last A0 = " + A0Distance + "( " + Long.toHexString(A0Distance) + " )");
+//                System.out.println("Last A1 = " + A1Distance + "( " + Long.toHexString(A1Distance) + " )");
                 state = STATE_CAPTURE_NAL_A1;
             } else {
                 buffer.put(ByteUtils.asUnsigned(0x00, 0x00, 0x00, 0x01, b));
@@ -154,8 +156,18 @@ public class CX10InputStreamReader {
         toCapture--;
         if (toCapture == 0) {
             A1Distance = 0;
-            System.out.println("A1 Nal Type\n");
-            System.out.println("Nal is " + ByteUtils.bytesToHex(nalBuffer.array()));
+            byte[] nalA1 = nalBuffer.array();
+            int val = ((nalA1[9] & 0xff) << 8) | (nalA1[8] & 0xff);
+            System.out.println(byteCount - 40);
+            System.out.println(ByteUtils.bytesToHex(nalBuffer.array()));
+            System.out.println("Next nal in " + val + "\n");
+            if (nalA1[7] == (0x01 & 0xFF)) {
+                byte[] buf = new byte[28];
+                System.arraycopy(nalA1, 12, buf, 0, 28);
+                System.out.println("Putting in buf" + ByteUtils.bytesToHex(buf));
+                buffer.put(buf);
+            }
+            byteCount = 0;
             state = STATE_INIT;
         }
     }
@@ -169,17 +181,21 @@ public class CX10InputStreamReader {
 
     byte[] replaceNal(byte[] nalA0) {
         int type = nalA0[7];
-        System.out.println("Nal is " + ByteUtils.bytesToHex(nalA0));
+        System.out.println(byteCount - 40);
+        System.out.println(ByteUtils.bytesToHex(nalA0));
+        int val = ((nalA0[9] & 0xff) << 8) | (nalA0[8] & 0xff);
+        System.out.println("Next nal in " + val + "\n");
+        byteCount = 0;
         if (type == (0x01 & 0x1f)) {
             byte[] out = new byte[27];
             System.arraycopy(nalA0, 13, out, 0, 27);
             return out;
         }
         if (type == (0x02 & 0x1f)) {
-            System.out.println("A0 Nal Type is 2\n");
+//            System.out.println("A0 Nal Type is 2\n");
         } else if (type == 0x03) {
             byte[] out = new byte[32];
-            System.out.println("A0 Nal Type is 3\n");
+//            System.out.println("A0 Nal Type is 3\n");
             byte[] params = ByteUtils.asUnsigned(0x01, 0x00, 0x00, 0x19, 0xD0, 0x02, 0x40, 0x02);
             //System.out.println(ByteUtils.bytesToHex(nalA0));
             System.arraycopy(params, 0, out, 0, params.length);
