@@ -1,7 +1,6 @@
 package org.cyanotic.cx10.io;
 
 import com.ivan.xinput.XInputAxes;
-import com.ivan.xinput.XInputButtons;
 import com.ivan.xinput.XInputComponents;
 import com.ivan.xinput.XInputDevice;
 import com.ivan.xinput.exceptions.XInputNotLoadedException;
@@ -69,7 +68,7 @@ public class XInput implements IController {
         }
 
         if (!device.poll()) {
-            System.err.println("Unable to poll the device");
+            //System.err.println("Unable to poll the device");
             return;
         }
 

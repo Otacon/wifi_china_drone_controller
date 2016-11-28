@@ -7,6 +7,8 @@ import java.io.IOException;
  */
 public class FFMpegProcessVideoEncoder implements IVideoEncoder {
 
+    private static final String HOSTNAME = "127.0.0.1";
+    private static final int PORT = 8890;
     private Process ffmpeg;
     private String fileName;
 
@@ -19,6 +21,8 @@ public class FFMpegProcessVideoEncoder implements IVideoEncoder {
             stop();
         }
         try {
+            String threads = "" + Runtime.getRuntime().availableProcessors() / 2;
+            String output = "tcp://" + HOSTNAME + ":" + PORT + "?listen";
             ffmpeg = new ProcessBuilder("ffmpeg")
                     .start();
         } catch (IOException e) {
