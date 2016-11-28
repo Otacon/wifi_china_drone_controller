@@ -44,10 +44,10 @@ public class CommandConnection {
     }
 
     private byte[] asByteArray(Command command) {
-        int pitch = command.getPitch() + 128;
+        int pitch = command.getPitch() + 127;
         int yaw = command.getYaw() + 127;
-        int roll = command.getRoll() + 128;
-        int throttle = command.getThrottle() + 128;
+        int roll = command.getRoll() + 127;
+        int throttle = command.getThrottle() + 127;
         boolean takeOff = command.isTakeOff();
         boolean land = command.isLand();
 

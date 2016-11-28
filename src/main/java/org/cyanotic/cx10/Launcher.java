@@ -2,9 +2,7 @@ package org.cyanotic.cx10;
 
 import com.ivan.xinput.exceptions.XInputNotLoadedException;
 import org.cyanotic.cx10.io.XInput;
-import org.cyanotic.cx10.io.video.CX10NalDecoder;
-import org.cyanotic.cx10.io.video.FFPlayProcessVideoPlayer;
-import org.cyanotic.cx10.io.video.IVideoPlayer;
+import org.cyanotic.cx10.io.video.*;
 import org.cyanotic.cx10.net.CommandConnection;
 import org.cyanotic.cx10.net.Connection;
 import org.cyanotic.cx10.net.Heartbeat;
@@ -15,6 +13,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * Created by cyanotic on 19/11/2016.
@@ -24,6 +24,10 @@ public class Launcher {
     public static void main(String[] args) throws IOException, InterruptedException, XInputNotLoadedException {
         IVideoPlayer player = new FFPlayProcessVideoPlayer();
         player.start();
+        IVideoEncoder encoder = new FFMpegProcessVideoEncoder();
+        String timestamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
+        encoder.setFileName("output-" + timestamp + ".mp4");
+        encoder.start();
         Thread.sleep(1000);
 
         Connection c1 = new Connection("172.16.10.1", 8888);
@@ -39,6 +43,10 @@ public class Launcher {
         Socket ffplaySocket = new Socket(ffplay, 8889);
         BufferedOutputStream ffplayOutput = new BufferedOutputStream(ffplaySocket.getOutputStream());
 
+        InetAddress ffmpeg = InetAddress.getByName("localhost");
+        Socket ffmpegSocket = new Socket(ffmpeg, 8890);
+        BufferedOutputStream ffmpegOutput = new BufferedOutputStream(ffmpegSocket.getOutputStream());
+
         Heartbeat heartbeat = new Heartbeat("172.16.10.1", 8888);
         heartbeat.start();
 
@@ -47,6 +55,7 @@ public class Launcher {
         do {
             data = decoder.readNal();
             ffplayOutput.write(data);
+            ffmpegOutput.write(data);
         } while (data != null);
     }
 }

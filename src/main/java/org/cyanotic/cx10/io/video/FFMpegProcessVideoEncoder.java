@@ -23,7 +23,8 @@ public class FFMpegProcessVideoEncoder implements IVideoEncoder {
         try {
             String threads = "" + Runtime.getRuntime().availableProcessors() / 2;
             String output = "tcp://" + HOSTNAME + ":" + PORT + "?listen";
-            ffmpeg = new ProcessBuilder("ffmpeg")
+            ffmpeg = new ProcessBuilder("ffmpeg.exe", "-i", output, "-c:v", "libxvid", fileName)
+                    .inheritIO()
                     .start();
         } catch (IOException e) {
             e.printStackTrace();
