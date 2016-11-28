@@ -20,23 +20,26 @@ public class CX10NalDecoder {
             0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00);
     private final InputStream inputStream;
+    boolean savedData = false;
 
     public CX10NalDecoder(InputStream inputStream) {
         this.inputStream = inputStream;
     }
 
     public byte[] readNal() throws IOException {
+        System.out.println();
         byte[] nalHeader = new byte[10];
 
         int read = inputStream.read(nalHeader);
+        System.out.println("Data read:" + read);
         if (read < nalHeader.length) {
             return null;
         }
-//        System.out.println("Header: " + ByteUtils.bytesToHex(nalHeader));
+        System.out.println("Header: " + ByteUtils.bytesToHex(nalHeader));
         int nalType = nalHeader[3] & 0xFF;
         switch (nalType) {
             case 0xA0:
-                //System.out.println("The nal is A0");
+                System.out.println("The nal is A0");
                 break;
             case 0xA1:
                 System.out.println("The nal is A1");
@@ -65,18 +68,17 @@ public class CX10NalDecoder {
 //        System.out.println("Header length = " + headerSize);
 
         int dataLength = ((nalHeader[9] & 0xff) << 8) | (nalHeader[8] & 0xff);
-//        System.out.println("Data length: " + dataLength);
+        System.out.println("Data length: " + dataLength);
         byte[] fullNalHeader = new byte[headerSize + nalHeader.length];
         System.arraycopy(nalHeader, 0, fullNalHeader, 0, nalHeader.length);
 
         inputStream.read(fullNalHeader, 10, headerSize);
-        //System.out.println(ByteUtils.bytesToHex(fullNalHeader));
+        System.out.println(ByteUtils.bytesToHex(fullNalHeader));
         if (nalType == 0xA0 && headerType == 0x03) {
 //            System.out.println("Old Header " + ByteUtils.bytesToHex(fullNalHeader));
             byte[] newHeader = replaceA003(fullNalHeader);
 //            System.out.println("New Header " + ByteUtils.bytesToHex(newHeader));
-            byte[] data = new byte[dataLength];
-            inputStream.read(data);
+            byte[] data = readData(dataLength);
             byte[] ret = ByteBuffer.allocate(newHeader.length + data.length).put(newHeader).put(data).array();
 //            System.out.println(ByteUtils.bytesToHex(ret));
             return ret;
@@ -90,20 +92,22 @@ public class CX10NalDecoder {
             ph[17] = fullNalHeader[4];
             ph[18] = fullNalHeader[33];
             ph[19] = fullNalHeader[32];
-            byte[] ret = new byte[dataLength];
+            savedData = true;
             System.out.println("Created next thing " + ByteUtils.bytesToHex(ph));
-            inputStream.read(ret);
-            return ret;
+            return readData(dataLength);
         } else if (nalType == 0xA1 && headerType == 0x01) {
-            byte[] ret = new byte[dataLength];
-            inputStream.read(ret);
-            byte[] tmp = ByteBuffer.allocate(ph.length + ret.length).put(ph).put(ret).array();
+            byte[] ret = readData(dataLength);
+            byte[] tmp;
+            if (savedData) {
+                tmp = ByteBuffer.allocate(ph.length + ret.length).put(ph).put(ret).array();
+                savedData = false;
+            } else {
+                tmp = ByteBuffer.allocate(ret.length).put(ret).array();
+            }
             System.out.println("Replaced old thing with new one " + ByteUtils.bytesToHex(ph));
             return tmp;
         } else {
-            byte[] ret = new byte[dataLength];
-            inputStream.read(ret);
-            return ret;
+            return readData(dataLength);
         }
     }
 
@@ -116,5 +120,17 @@ public class CX10NalDecoder {
         out[18] = nalA0[9];
         out[19] = nalA0[8];
         return out;
+    }
+
+    byte[] readData(int length) throws IOException {
+        int read = 0;
+        ByteBuffer byteBuffer = ByteBuffer.allocate(length);
+        while (read < length) {
+            byte[] buffer = new byte[length - read];
+            int lastRead = inputStream.read(buffer);
+            byteBuffer.put(buffer, 0, lastRead);
+            read += lastRead;
+        }
+        return byteBuffer.array();
     }
 }
