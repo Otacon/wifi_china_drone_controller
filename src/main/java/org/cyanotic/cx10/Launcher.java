@@ -34,7 +34,6 @@ public class Launcher {
         Socket socket = new Socket(address, 8888);
         DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
         DataInputStream inputStream = new DataInputStream(socket.getInputStream());
-//        FileInputStream inputStream = new FileInputStream("video_protocol");
 
         InetAddress ffplay = InetAddress.getByName("localhost");
         Socket ffplaySocket = new Socket(ffplay, 8889);
