@@ -2,7 +2,8 @@ package org.cyanotic.cx10;
 
 import org.cyanotic.cx10.io.IController;
 import org.cyanotic.cx10.model.Command;
-import org.cyanotic.cx10.net.*;
+import org.cyanotic.cx10.net.CommandConnection;
+import org.cyanotic.cx10.net.Connection;
 
 import java.io.IOException;
 
@@ -52,11 +53,11 @@ public class Controller extends Thread implements IController.CommandListener {
     private void handshake() throws IOException {
         transportConnection.connect();
         transportConnection.setName("org.cyanotic.cx10.net.Connection 1");
-        transportConnection.sendMessage(new HelloMessage1());
-        transportConnection.sendMessage(new HelloMessage3());
-        transportConnection.sendMessage(new HelloMessage4());
-        transportConnection.sendMessage(new HelloMessage5());
-        transportConnection.sendMessage(new HelloMessage6());
+        transportConnection.sendMessage("message1.bin", 106);
+        transportConnection.sendMessage("message2.bin", 106);
+        transportConnection.sendMessage("message3.bin", 170);
+        transportConnection.sendMessage("message4.bin", 106);
+        transportConnection.sendMessage("message5.bin", 106);
     }
 
     private void hold() {

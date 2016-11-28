@@ -7,6 +7,7 @@ import org.cyanotic.cx10.io.video.FFPlayProcessVideoPlayer;
 import org.cyanotic.cx10.io.video.IVideoPlayer;
 import org.cyanotic.cx10.net.CommandConnection;
 import org.cyanotic.cx10.net.Connection;
+import org.cyanotic.cx10.net.Heartbeat;
 
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -38,6 +39,9 @@ public class Launcher {
         InetAddress ffplay = InetAddress.getByName("localhost");
         Socket ffplaySocket = new Socket(ffplay, 8889);
         BufferedOutputStream ffplayOutput = new BufferedOutputStream(ffplaySocket.getOutputStream());
+
+        Heartbeat heartbeat = new Heartbeat("172.16.10.1", 8888);
+        heartbeat.start();
 
         CX10NalDecoder decoder = new CX10NalDecoder(inputStream, outputStream);
         byte[] data = null;

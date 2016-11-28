@@ -38,8 +38,8 @@ public class CX10NalDecoder {
             byte[] bytes = Files.readAllBytes(Paths.get("video.bin"));
             outputStream.write(bytes);
             byte[] response = new byte[106];
-            System.out.println("Ouch!");
             inputStream.read(response);
+            initialized = true;
         }
         byte[] nalHeader = new byte[10];
         int read = inputStream.read(nalHeader);
@@ -51,6 +51,19 @@ public class CX10NalDecoder {
 
         int headerSize;
         int headerType = nalHeader[7] & 0XFF;
+        switch (headerType) {
+            case 0x02:
+            case 0x03:
+                headerSize = 30;
+                break;
+            case 0x01:
+                headerSize = 2;
+                break;
+            default:
+                System.err.println("Unknown header type " + headerType);
+                return null;
+
+        }
 
         int dataLength = ((nalHeader[9] & 0xff) << 8) | (nalHeader[8] & 0xff);
         byte[] fullNalHeader = new byte[headerSize + nalHeader.length];

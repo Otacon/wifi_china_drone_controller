@@ -1,10 +1,14 @@
 package org.cyanotic.cx10.net;
 
+import org.cyanotic.cx10.utils.ByteUtils;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 
 /**
  * Created by orfeo.ciano on 18/11/2016.
@@ -13,8 +17,8 @@ public class Connection {
 
     private final String host;
     private final int port;
-    private String name;
     Socket socket;
+    private String name;
 
     public Connection(String host, int port) {
         this.host = host;
@@ -41,27 +45,16 @@ public class Connection {
         }
     }
 
-    public Message sendMessage(Message message) throws IOException {
-        if (message == null) {
-            return null;
-        }
-        System.out.print(name + " >>> ");
-        System.out.print(message);
-        byte[] bytes = message.getCommand();
+    public void sendMessage(String filename, int responseSize) throws IOException {
+        byte[] bytes = Files.readAllBytes(Paths.get(filename));
+        System.out.println(name + " >>> ");
+        System.out.println(ByteUtils.bytesToHex(bytes));
         DataOutputStream output = new DataOutputStream(socket.getOutputStream());
         output.write(bytes);
-        System.out.print(name + " <<< ");
-        byte[] buffer;
-        if(message instanceof HelloMessage4){
-            buffer = new byte[170];
-        } else {
-            buffer = new byte[106];
-        }
+        byte[] buffer = new byte[responseSize];
         DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
         dataInputStream.read(buffer);
-
-        ResponseMessage response = new ResponseMessage(buffer);
-        System.out.println(response);
-        return response;
+        System.out.println(name + " <<< ");
+        System.out.println(ByteUtils.bytesToHex(buffer));
     }
 }
