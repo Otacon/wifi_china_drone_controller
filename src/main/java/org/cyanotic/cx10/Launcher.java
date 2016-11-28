@@ -22,7 +22,7 @@ import java.util.Date;
 public class Launcher {
 
     public static void main(String[] args) throws IOException, InterruptedException, XInputNotLoadedException {
-        IVideoPlayer player = new FFPlayProcessVideoPlayer();
+        final IVideoPlayer player = new FFPlayProcessVideoPlayer();
         player.start();
         IVideoEncoder encoder = new FFMpegProcessVideoEncoder();
         String timestamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
@@ -39,23 +39,51 @@ public class Launcher {
         DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
         DataInputStream inputStream = new DataInputStream(socket.getInputStream());
 
-        InetAddress ffplay = InetAddress.getByName("localhost");
-        Socket ffplaySocket = new Socket(ffplay, 8889);
-        BufferedOutputStream ffplayOutput = new BufferedOutputStream(ffplaySocket.getOutputStream());
+        final InetAddress ffplay = InetAddress.getByName("localhost");
+        final Socket ffplaySocket = new Socket(ffplay, 8889);
+        final BufferedOutputStream ffplayOutput = new BufferedOutputStream(ffplaySocket.getOutputStream());
 
-        InetAddress ffmpeg = InetAddress.getByName("localhost");
-        Socket ffmpegSocket = new Socket(ffmpeg, 8890);
-        BufferedOutputStream ffmpegOutput = new BufferedOutputStream(ffmpegSocket.getOutputStream());
+        final InetAddress ffmpeg = InetAddress.getByName("localhost");
+        final Socket ffmpegSocket = new Socket(ffmpeg, 8890);
+        final BufferedOutputStream ffmpegOutput = new BufferedOutputStream(ffmpegSocket.getOutputStream());
 
-        Heartbeat heartbeat = new Heartbeat("172.16.10.1", 8888);
+        final Heartbeat heartbeat = new Heartbeat("172.16.10.1", 8888);
         heartbeat.start();
 
-        CX10NalDecoder decoder = new CX10NalDecoder(inputStream, outputStream);
-        byte[] data = null;
-        do {
-            data = decoder.readNal();
-            ffplayOutput.write(data);
-            ffmpegOutput.write(data);
-        } while (data != null);
+        final CX10NalDecoder decoder = new CX10NalDecoder(inputStream, outputStream);
+
+        Thread t = new Thread(new Runnable() {
+            public void run() {
+                byte[] data;
+                do {
+                    try {
+                        data = decoder.readNal();
+                        ffplayOutput.write(data);
+                        ffmpegOutput.write(data);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        break;
+                    }
+                } while (data != null);
+            }
+        });
+        t.start();
+        System.in.read();
+
+        System.out.println("Shutdown");
+
+        try {
+            ffplaySocket.close();
+        } catch (IOException e) {
+
+        }
+
+        try {
+            ffmpegSocket.close();
+        } catch (IOException e) {
+
+        }
+
+        System.exit(0);
     }
 }
