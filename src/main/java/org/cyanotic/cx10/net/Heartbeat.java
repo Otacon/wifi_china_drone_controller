@@ -1,11 +1,9 @@
 package org.cyanotic.cx10.net;
 
+import org.cyanotic.cx10.utils.ByteUtils;
+
 import java.io.*;
 import java.net.Socket;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
-import static java.nio.file.Files.readAllBytes;
 
 /**
  * Created by cyanotic on 19/11/2016.
@@ -25,7 +23,7 @@ public class Heartbeat extends Thread {
     @Override
     public synchronized void start() {
         try {
-            socket = new Socket("172.16.10.1", 8888);
+            socket = new Socket(host, port);
             super.start();
         } catch (IOException e) {
             e.printStackTrace();
@@ -51,15 +49,14 @@ public class Heartbeat extends Thread {
 
     private void sendHeartBeat() throws IOException {
         System.out.println("Sending heartbeat...");
-        Path path = Paths.get("heartbeat.bin");
-        byte[] myByteArray = readAllBytes(path);
+        byte[] heartbeatData = ByteUtils.loadMessageFromFile("heartbeat.bin");
         int start = 0;
-        int len = myByteArray.length;
+        int len = heartbeatData.length;
         OutputStream out = socket.getOutputStream();
         DataOutputStream dos = new DataOutputStream(out);
 
         if (len > 0) {
-            dos.write(myByteArray, start, len);
+            dos.write(heartbeatData, start, len);
         }
         dos.flush();
         DataInputStream dis = new DataInputStream(socket.getInputStream());

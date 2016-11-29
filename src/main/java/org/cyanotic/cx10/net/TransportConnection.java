@@ -7,8 +7,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 /**
  * Created by orfeo.ciano on 18/11/2016.
@@ -45,8 +43,7 @@ public class TransportConnection {
         }
     }
 
-    public void sendMessage(String filename, int responseSize) throws IOException {
-        byte[] bytes = Files.readAllBytes(Paths.get(filename));
+    public void sendMessage(byte[] bytes, int responseSize) throws IOException {
         System.out.println(name + " >>> ");
         System.out.println(ByteUtils.bytesToHex(bytes));
         DataOutputStream output = new DataOutputStream(socket.getOutputStream());

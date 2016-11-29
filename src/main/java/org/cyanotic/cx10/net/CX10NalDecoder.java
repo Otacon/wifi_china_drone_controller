@@ -22,14 +22,21 @@ public class CX10NalDecoder {
             0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00, 0x00, 0x00, 0x00,
             0x00, 0x00);
-    private final InputStream inputStream;
-    private final OutputStream outputStream;
-    private final Socket socket;
+    private final String host;
+    private final int port;
+    private InputStream inputStream;
+    private OutputStream outputStream;
+    private Socket socket;
     private boolean savedData = false;
     private boolean initialized = false;
     private int sequence = 0;
 
     public CX10NalDecoder(String host, int port) throws IOException {
+        this.host = host;
+        this.port = port;
+    }
+
+    public void connect() throws IOException {
         InetAddress address = InetAddress.getByName(host);
         socket = new Socket(address, port);
         outputStream = new DataOutputStream(socket.getOutputStream());

@@ -10,6 +10,7 @@ import org.cyanotic.cx10.net.CX10NalDecoder;
 import org.cyanotic.cx10.net.CommandConnection;
 import org.cyanotic.cx10.net.Heartbeat;
 import org.cyanotic.cx10.net.TransportConnection;
+import org.cyanotic.cx10.utils.ByteUtils;
 
 import java.io.BufferedOutputStream;
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class CX10 {
     private OutputStream ffmpegOutput;
     private Socket ffplaySocket;
     private Socket ffmpegSocket;
-    private boolean videoStarted = false;
+    private CX10NalDecoder decoder;
 
     public void connect() throws IOException {
         if (transportConnection != null) {
@@ -43,11 +44,11 @@ public class CX10 {
         transportConnection = new TransportConnection(HOST, 8888);
         transportConnection.connect();
         transportConnection.setName("Transport Connection");
-        transportConnection.sendMessage("message1.bin", 106);
-        transportConnection.sendMessage("message2.bin", 106);
-        transportConnection.sendMessage("message3.bin", 170);
-        transportConnection.sendMessage("message4.bin", 106);
-        transportConnection.sendMessage("message5.bin", 106);
+        transportConnection.sendMessage(ByteUtils.loadMessageFromFile("message1.bin"), 106);
+        transportConnection.sendMessage(ByteUtils.loadMessageFromFile("message1.bin"), 106);
+        transportConnection.sendMessage(ByteUtils.loadMessageFromFile("message1.bin"), 170);
+        transportConnection.sendMessage(ByteUtils.loadMessageFromFile("message1.bin"), 106);
+        transportConnection.sendMessage(ByteUtils.loadMessageFromFile("message1.bin"), 106);
         heartbeat = new Heartbeat(HOST, 8888);
         heartbeat.start();
     }
@@ -155,14 +156,14 @@ public class CX10 {
     }
 
     private void startVideo() throws IOException {
-        if (videoStarted) {
+        if (decoder != null) {
             return;
         }
-        final CX10NalDecoder decoder = new CX10NalDecoder(HOST, 8888);
+
+        decoder = new CX10NalDecoder(HOST, 8888);
         final Thread t = new Thread(new Runnable() {
             public void run() {
                 byte[] data;
-                videoStarted = true;
                 do {
                     try {
                         data = decoder.readNal();
@@ -182,7 +183,7 @@ public class CX10 {
                         break;
                     }
                 } while (data != null);
-                videoStarted = false;
+                decoder = null;
             }
         });
         t.start();
