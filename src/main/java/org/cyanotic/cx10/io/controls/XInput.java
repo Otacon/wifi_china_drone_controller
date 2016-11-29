@@ -1,4 +1,4 @@
-package org.cyanotic.cx10.io;
+package org.cyanotic.cx10.io.controls;
 
 import com.ivan.xinput.XInputAxes;
 import com.ivan.xinput.XInputComponents;
@@ -68,21 +68,21 @@ public class XInput implements IController {
         }
 
         if (!device.poll()) {
-            //System.err.println("Unable to poll the device");
+            System.err.println("Unable to poll the device");
             return;
         }
 
         XInputComponents components = device.getComponents();
         XInputAxes axes = components.getAxes();
 
-        int lt = (int) (axes.lt * 128);
-        int rt = (int) (axes.rt * 128);
+        int lt = descretize(axes.lt);
+        int rt = descretize(axes.rt);
 
-        int lx = (int) (axes.lx * 128);
-        int ly = (int) (axes.ly * 128);
+        int lx = descretize(axes.lx);
+        int ly = descretize(axes.ly);
 
-        int rx = (int) (axes.rx * 128);
-        int ry = (int) (axes.ry * 128);
+        int rx = descretize(axes.rx);
+        int ry = descretize(axes.ry);
 
         Command command = new Command();
 
@@ -94,6 +94,10 @@ public class XInput implements IController {
         command.setRoll(rx);
 
         listener.onCommandReceived(command);
+    }
+
+    private int descretize(float f) {
+        return 24 * (Math.round((f * 128) / 24));
     }
 
     public void stop() {

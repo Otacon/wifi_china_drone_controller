@@ -1,10 +1,10 @@
-package org.cyanotic.cx10.io.video;
+package org.cyanotic.cx10.net;
 
 import org.cyanotic.cx10.utils.ByteUtils;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.net.InetAddress;
+import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -24,13 +24,16 @@ public class CX10NalDecoder {
             0x00, 0x00);
     private final InputStream inputStream;
     private final OutputStream outputStream;
-    boolean savedData = false;
-    boolean initialized = false;
-    int sequence = 0;
+    private final Socket socket;
+    private boolean savedData = false;
+    private boolean initialized = false;
+    private int sequence = 0;
 
-    public CX10NalDecoder(InputStream inputStream, OutputStream outputStream) {
-        this.inputStream = inputStream;
-        this.outputStream = outputStream;
+    public CX10NalDecoder(String host, int port) throws IOException {
+        InetAddress address = InetAddress.getByName(host);
+        socket = new Socket(address, port);
+        outputStream = new DataOutputStream(socket.getOutputStream());
+        inputStream = new DataInputStream(socket.getInputStream());
     }
 
     public byte[] readNal() throws IOException {
@@ -118,5 +121,15 @@ public class CX10NalDecoder {
             read += lastRead;
         }
         return byteBuffer.array();
+    }
+
+    public void disconnect() {
+        try {
+            outputStream.close();
+            inputStream.close();
+            socket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

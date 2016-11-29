@@ -44,10 +44,10 @@ public class CommandConnection {
     }
 
     private byte[] asByteArray(Command command) {
-        int pitch = command.getPitch() + 127;
-        int yaw = command.getYaw() + 127;
-        int roll = command.getRoll() + 127;
-        int throttle = command.getThrottle() + 127;
+        int pitch = command.getPitch() + 128;
+        int yaw = command.getYaw() + 128;
+        int roll = command.getRoll() + 128;
+        int throttle = command.getThrottle() + 128;
         boolean takeOff = command.isTakeOff();
         boolean land = command.isLand();
 
@@ -68,6 +68,7 @@ public class CommandConnection {
         data[6] = checksum(ByteUtils.asUnsigned(data[1], data[2], data[3], data[4], data[5]));
 
         data[7] = (byte) 0x33;
+        System.out.println(ByteUtils.bytesToHex(data));
         return data;
     }
 

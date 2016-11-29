@@ -13,14 +13,14 @@ import java.nio.file.Paths;
 /**
  * Created by orfeo.ciano on 18/11/2016.
  */
-public class Connection {
+public class TransportConnection {
 
     private final String host;
     private final int port;
     Socket socket;
     private String name;
 
-    public Connection(String host, int port) {
+    public TransportConnection(String host, int port) {
         this.host = host;
         this.port = port;
     }

@@ -1,4 +1,4 @@
-package org.cyanotic.cx10.io;
+package org.cyanotic.cx10.io.controls;
 
 import org.cyanotic.cx10.model.Command;
 
