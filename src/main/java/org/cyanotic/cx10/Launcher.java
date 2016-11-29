@@ -1,6 +1,7 @@
 package org.cyanotic.cx10;
 
 import com.ivan.xinput.exceptions.XInputNotLoadedException;
+import org.cyanotic.cx10.ui.MainWindow;
 
 import java.io.IOException;
 
@@ -10,12 +11,6 @@ import java.io.IOException;
 public class Launcher {
 
     public static void main(String[] args) throws IOException, InterruptedException, XInputNotLoadedException {
-        CX10 cx10 = new CX10();
-        cx10.connect();
-        cx10.startControls();
-        cx10.startVideoRecorder();
-        cx10.startVideoStream();
-        System.in.read();
-        cx10.disconnect();
+        new MainWindow();
     }
 }
