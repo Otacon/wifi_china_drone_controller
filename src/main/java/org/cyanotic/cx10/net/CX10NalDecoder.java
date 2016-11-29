@@ -6,8 +6,6 @@ import java.io.*;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.nio.ByteBuffer;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 
 /**
  * Created by cyanotic on 27/11/2016.
@@ -45,7 +43,7 @@ public class CX10NalDecoder {
 
     public byte[] readNal() throws IOException {
         if (!initialized) {
-            byte[] bytes = Files.readAllBytes(Paths.get("video.bin"));
+            byte[] bytes = ByteUtils.loadMessageFromFile("video.bin");
             outputStream.write(bytes);
             byte[] response = new byte[106];
             inputStream.read(response);

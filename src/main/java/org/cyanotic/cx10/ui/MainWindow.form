@@ -2,7 +2,7 @@
 <form xmlns="http://www.intellij.com/uidesigner/form/" version="1" bind-to-class="org.cyanotic.cx10.ui.MainWindow">
   <grid id="27dc6" binding="panel" layout-manager="GridBagLayout">
     <constraints>
-      <xy x="20" y="20" width="500" height="400"/>
+      <xy x="20" y="20" width="650" height="400"/>
     </constraints>
     <properties/>
     <border type="empty">
@@ -11,16 +11,25 @@
     <children>
       <component id="f327" class="javax.swing.JButton" binding="btnConnect">
         <constraints>
-          <grid row="0" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="0" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
           <gridbag weightx="0.0" weighty="0.0"/>
         </constraints>
         <properties>
           <text value="Connect"/>
         </properties>
       </component>
+      <component id="5a2a6" class="javax.swing.JLabel" binding="lblStatus">
+        <constraints>
+          <grid row="3" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <gridbag top="20" left="0" bottom="0" right="0" weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <text value="No Error"/>
+        </properties>
+      </component>
       <component id="127d9" class="javax.swing.JButton" binding="btnVideo">
         <constraints>
-          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
           <gridbag weightx="0.0" weighty="0.0"/>
         </constraints>
         <properties>
@@ -29,7 +38,7 @@
       </component>
       <component id="9bbdb" class="javax.swing.JButton" binding="btnRecord">
         <constraints>
-          <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
           <gridbag weightx="0.0" weighty="0.0"/>
         </constraints>
         <properties>
@@ -38,22 +47,38 @@
       </component>
       <component id="a25d2" class="javax.swing.JButton" binding="btnControls">
         <constraints>
-          <grid row="0" column="1" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
+          <grid row="2" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
           <gridbag weightx="0.0" weighty="0.0"/>
         </constraints>
         <properties>
           <text value="Start Controller"/>
         </properties>
       </component>
-      <component id="5a2a6" class="javax.swing.JLabel" binding="lblStatus">
+      <component id="20282" class="javax.swing.JRadioButton" binding="radioController">
         <constraints>
-          <grid row="1" column="0" row-span="1" col-span="4" vsize-policy="0" hsize-policy="0" anchor="0" fill="1" indent="0" use-parent-layout="false"/>
-          <gridbag top="20" left="0" bottom="0" right="0" weightx="0.0" weighty="0.0"/>
+          <grid row="1" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <gridbag weightx="0.0" weighty="0.0"/>
         </constraints>
         <properties>
-          <text value="No Error"/>
+          <text value="Controller"/>
+        </properties>
+      </component>
+      <component id="d9f15" class="javax.swing.JRadioButton" binding="radioKeyboard">
+        <constraints>
+          <grid row="0" column="3" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <gridbag weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <selected value="true"/>
+          <text value="Keyboard"/>
         </properties>
       </component>
     </children>
   </grid>
+  <buttonGroups>
+    <group name="ControlsRadioGroup">
+      <member id="d9f15"/>
+      <member id="20282"/>
+    </group>
+  </buttonGroups>
 </form>

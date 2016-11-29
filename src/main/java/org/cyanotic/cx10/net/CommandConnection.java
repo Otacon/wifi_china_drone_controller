@@ -68,7 +68,7 @@ public class CommandConnection {
         data[6] = checksum(ByteUtils.asUnsigned(data[1], data[2], data[3], data[4], data[5]));
 
         data[7] = (byte) 0x33;
-        System.out.println(ByteUtils.bytesToHex(data));
+        //System.out.println(ByteUtils.bytesToHex(data));
         return data;
     }
 

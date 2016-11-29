@@ -1,8 +1,11 @@
 package org.cyanotic.cx10.ui;
 
 import org.cyanotic.cx10.CX10;
+import org.cyanotic.cx10.io.controls.Keyboard;
+import org.cyanotic.cx10.io.controls.XInput;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
@@ -19,6 +22,8 @@ public class MainWindow extends JFrame implements ActionListener {
     private JButton btnRecord;
     private JLabel lblStatus;
     private JPanel panel;
+    private JRadioButton radioController;
+    private JRadioButton radioKeyboard;
 
     private boolean isConnected = false;
     private boolean isRecording = false;
@@ -121,6 +126,7 @@ public class MainWindow extends JFrame implements ActionListener {
                 setModel(model);
 
                 cx10.startVideoRecorder();
+                isRecording = true;
 
                 model = getModel();
                 model.setBtnRecordText("Stop Recording");
@@ -187,7 +193,13 @@ public class MainWindow extends JFrame implements ActionListener {
         MainWindowModel model;
         if (!isControlled) {
             try {
-                cx10.startControls();
+                if (radioKeyboard.isSelected()) {
+                    cx10.startControls(new Keyboard(KeyboardFocusManager.getCurrentKeyboardFocusManager()));
+                } else if (radioController.isSelected()) {
+                    cx10.startControls(new XInput());
+                } else {
+                    return;
+                }
                 isControlled = true;
 
                 model = getModel();
@@ -203,6 +215,7 @@ public class MainWindow extends JFrame implements ActionListener {
 
         } else {
             cx10.stopControls();
+            isControlled = false;
 
             model = getModel();
             model.setBtnControlsText("Start Controller");

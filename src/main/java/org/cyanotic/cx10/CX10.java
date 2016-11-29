@@ -1,7 +1,7 @@
 package org.cyanotic.cx10;
 
 import org.cyanotic.cx10.io.controls.Controller;
-import org.cyanotic.cx10.io.controls.XInput;
+import org.cyanotic.cx10.io.controls.IController;
 import org.cyanotic.cx10.io.video.FFMpegProcessVideoEncoder;
 import org.cyanotic.cx10.io.video.FFPlayProcessVideoPlayer;
 import org.cyanotic.cx10.io.video.IVideoEncoder;
@@ -45,10 +45,10 @@ public class CX10 {
         transportConnection.connect();
         transportConnection.setName("Transport Connection");
         transportConnection.sendMessage(ByteUtils.loadMessageFromFile("message1.bin"), 106);
-        transportConnection.sendMessage(ByteUtils.loadMessageFromFile("message1.bin"), 106);
-        transportConnection.sendMessage(ByteUtils.loadMessageFromFile("message1.bin"), 170);
-        transportConnection.sendMessage(ByteUtils.loadMessageFromFile("message1.bin"), 106);
-        transportConnection.sendMessage(ByteUtils.loadMessageFromFile("message1.bin"), 106);
+        transportConnection.sendMessage(ByteUtils.loadMessageFromFile("message2.bin"), 106);
+        transportConnection.sendMessage(ByteUtils.loadMessageFromFile("message3.bin"), 170);
+        transportConnection.sendMessage(ByteUtils.loadMessageFromFile("message4.bin"), 106);
+        transportConnection.sendMessage(ByteUtils.loadMessageFromFile("message5.bin"), 106);
         heartbeat = new Heartbeat(HOST, 8888);
         heartbeat.start();
     }
@@ -71,11 +71,9 @@ public class CX10 {
         }
     }
 
-    public void startControls() throws IOException {
-        if (controller != null) {
-            stopControls();
-        }
-        controller = new Controller(new XInput(), new CommandConnection(HOST, 8895));
+    public void startControls(IController inputDevice) throws IOException {
+        stopControls();
+        controller = new Controller(inputDevice, new CommandConnection(HOST, 8895));
         controller.start();
     }
 
@@ -87,9 +85,7 @@ public class CX10 {
     }
 
     public void startVideoStream() throws IOException {
-        if (previewPlayer != null) {
-            stopVideoStream();
-        }
+        stopVideoStream();
         previewPlayer = new FFPlayProcessVideoPlayer();
         previewPlayer.start();
         try {
@@ -109,20 +105,20 @@ public class CX10 {
             previewPlayer = null;
         }
 
-        try {
-            ffplayOutput.close();
-            ffplaySocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (ffplayOutput != null && ffplaySocket != null) {
+            try {
+                ffplayOutput.close();
+                ffplaySocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            ffplayOutput = null;
+            ffplaySocket = null;
         }
-        ffplayOutput = null;
-        ffplaySocket = null;
     }
 
     public void startVideoRecorder() throws IOException {
-        if (recorder != null) {
-            stopVideoRecorder();
-        }
+        stopVideoRecorder();
         recorder = new FFMpegProcessVideoEncoder();
         String timestamp = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss").format(new Date());
         recorder.setFileName("output-" + timestamp + ".mp4");
@@ -145,14 +141,16 @@ public class CX10 {
             recorder.stop();
             recorder = null;
         }
-        try {
-            ffmpegOutput.close();
-            ffmpegSocket.close();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (ffmpegOutput != null && ffmpegSocket != null) {
+            try {
+                ffmpegOutput.close();
+                ffmpegSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            ffmpegOutput = null;
+            ffmpegSocket = null;
         }
-        ffmpegOutput = null;
-        ffmpegSocket = null;
     }
 
     private void startVideo() throws IOException {
@@ -161,6 +159,7 @@ public class CX10 {
         }
 
         decoder = new CX10NalDecoder(HOST, 8888);
+        decoder.connect();
         final Thread t = new Thread(new Runnable() {
             public void run() {
                 byte[] data;
