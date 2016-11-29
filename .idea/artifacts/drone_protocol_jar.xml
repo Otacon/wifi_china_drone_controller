@@ -1,0 +1,9 @@
+<component name="ArtifactManager">
+  <artifact type="jar" build-on-make="true" name="drone_protocol:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/drone_protocol_jar</output-path>
+    <root id="archive" name="drone_protocol.jar">
+      <element id="module-output" name="drone_protocol" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/github/strikerx3/jxinput/bb39935/jxinput-bb39935.jar" path-in-jar="/" />
+    </root>
+  </artifact>
+</component>
