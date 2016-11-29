@@ -92,7 +92,7 @@ public class CX10 {
         previewPlayer = new FFPlayProcessVideoPlayer();
         previewPlayer.start();
         try {
-            Thread.sleep(5000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -127,7 +127,7 @@ public class CX10 {
         recorder.setFileName("output-" + timestamp + ".mp4");
         recorder.start();
         try {
-            Thread.sleep(5000);
+            Thread.sleep(1000);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
