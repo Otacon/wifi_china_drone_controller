@@ -6,7 +6,21 @@ Download from [Here](https://drive.google.com/open?id=0B1mGvcEpWz16aE9Sd3gzQnoxM
 
 ### Stream/Record Video ###
 
-In order to stream or record video you need to download [FFPLAY and FFMPEG](https://ffmpeg.org/download.html) for your platform and put it in the same folder of the drone_protocol.jar
+In order to stream or record video you need to download [FFPLAY and FFMPEG](https://ffmpeg.org/download.html) for your platform and
+put the two binaries (ffmpeg and ffplay) contained in the archive in the same folder of the drone_protocol.jar.
+i.e.
+
+C:\users\sample\Desktop\cx10\ will contain
+* drone_protocol.jar
+* ffmpeg.exe
+* ffplay.exe
+
+or on MacOSX/Linux
+/users/sample/Desktop/cx10/ will contain
+* drone_protocol.jar
+* ffmpeg
+* ffplay
+
 
 ### Keyboard Controls ###
 
