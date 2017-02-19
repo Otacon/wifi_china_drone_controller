@@ -73,12 +73,36 @@
           <text value="Keyboard"/>
         </properties>
       </component>
+      <component id="195a1" class="javax.swing.JRadioButton" binding="radioWindows">
+        <constraints>
+          <grid row="0" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <gridbag weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <selected value="true"/>
+          <text value="Windows"/>
+        </properties>
+      </component>
+      <component id="284ba" class="javax.swing.JRadioButton" binding="radioLinux">
+        <constraints>
+          <grid row="1" column="2" row-span="1" col-span="1" vsize-policy="0" hsize-policy="3" anchor="8" fill="0" indent="0" use-parent-layout="false"/>
+          <gridbag weightx="0.0" weighty="0.0"/>
+        </constraints>
+        <properties>
+          <selected value="true"/>
+          <text value="Linux"/>
+        </properties>
+      </component>
     </children>
   </grid>
   <buttonGroups>
     <group name="ControlsRadioGroup">
       <member id="d9f15"/>
       <member id="20282"/>
+    </group>
+    <group name="buttonGroupSO">
+      <member id="195a1"/>
+      <member id="284ba"/>
     </group>
   </buttonGroups>
 </form>

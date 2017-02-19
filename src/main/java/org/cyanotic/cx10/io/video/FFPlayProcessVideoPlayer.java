@@ -9,6 +9,11 @@ public class FFPlayProcessVideoPlayer implements IVideoPlayer {
     private static final String HOSTNAME = "127.0.0.1";
     private static final int PORT = 8889;
     private Process ffplay;
+    private String SO = "";
+
+    public FFPlayProcessVideoPlayer(String SO) {
+        this.SO = SO;
+    }
 
     public void start() {
         if (ffplay != null) {
@@ -16,8 +21,12 @@ public class FFPlayProcessVideoPlayer implements IVideoPlayer {
         }
         try {
             String output = "tcp://" + HOSTNAME + ":" + PORT + "?listen";
-            ffplay = new ProcessBuilder("cmd", "/c", "start", "ffplay", "-probesize", "64", "-sync", "ext", output)
+            if (SO == "win")
+                ffplay = new ProcessBuilder("cmd", "/c", "start", "ffplay", "-probesize", "64", "-sync", "ext", output)
                     .start();
+            else
+                ffplay = new ProcessBuilder("ffplay", "-fflags", "nobuffer", output)
+                        .start();
         } catch (IOException e) {
             e.printStackTrace();
         }
