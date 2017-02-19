@@ -84,9 +84,9 @@ public class CX10 {
         }
     }
 
-    public void startVideoStream() throws IOException {
+    public void startVideoStream(String SO) throws IOException {
         stopVideoStream();
-        previewPlayer = new FFPlayProcessVideoPlayer();
+        previewPlayer = new FFPlayProcessVideoPlayer(SO);
         previewPlayer.start();
         try {
             Thread.sleep(1000);
