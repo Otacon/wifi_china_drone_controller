@@ -2,7 +2,7 @@
 
 This is a sample application to control Cheerson CX10-WD drone from desktop using keyboard or a XInput Device (i.e. XBoxController)
 
-Download from [Here](https://drive.google.com/open?id=0B1mGvcEpWz16aE9Sd3gzQnoxMk0) the Latest version
+Download from [Here](https://github.com/Otacon/wifi_china_drone_controller/releases) the Latest version
 
 ### Stream/Record Video ###
 
